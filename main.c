@@ -10,6 +10,9 @@
 #define E_PIN BIT1     // P2.1
 #define DATA_PINS (BIT2 | BIT3 | BIT4 | BIT5)  // P2.2, P2.3, P2.4, P2.5
 
+// Definição do pino do Buzzer
+#define BUZZER_PIN BIT2  // P1.2
+
 // Função para delay em microssegundos
 void delay_us(unsigned int us) {
     while (us--) {
@@ -97,6 +100,10 @@ void main(void) {
     P1DIR &= ~ECHO_PIN; // ECHO como entrada
     P1OUT &= ~TRIG_PIN; // TRIG em LOW
 
+    // Configura pino do Buzzer
+    P1DIR |= BUZZER_PIN;  // Buzzer como saída
+    P1OUT &= ~BUZZER_PIN; // Buzzer desligado
+
     // Configura pinos do LCD
     P2DIR |= RS_PIN | E_PIN | DATA_PINS;  // Configura como saída
     lcd_init();  // Inicializa o LCD
@@ -112,6 +119,13 @@ void main(void) {
         char buffer[16];
         sprintf(buffer, "%u cm", distance);  // Formata a distância
         lcd_print(buffer);
+
+        // Ativa o buzzer se a distância for menor que 10 cm
+        if (distance < 10) {
+            P1OUT |= BUZZER_PIN;  // Liga o buzzer
+        } else {
+            P1OUT &= ~BUZZER_PIN; // Desliga o buzzer
+        }
 
         __delay_cycles(1000000);  // Aguarda 1 segundo antes de medir novamente
     }
